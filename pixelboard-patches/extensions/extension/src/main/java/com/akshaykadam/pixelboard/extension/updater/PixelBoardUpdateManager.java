@@ -26,6 +26,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.akshaykadam.pixelboard.extension.BuildConfig;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -44,10 +46,11 @@ import java.util.concurrent.Executors;
 public final class PixelBoardUpdateManager {
     private static final String TAG = "PixelBoardUpdate";
 
+    public static final String UPDATE_REPO_SLUG = BuildConfig.UPDATE_REPO_SLUG;
     public static final String GITHUB_REPO_API =
-            "https://api.github.com/repos/Akshayykadam/PixelBoard/releases/latest";
+            "https://api.github.com/repos/" + UPDATE_REPO_SLUG + "/releases/latest";
     public static final String GITHUB_REPO_RELEASES_WEB =
-            "https://github.com/Akshayykadam/PixelBoard/releases";
+            "https://github.com/" + UPDATE_REPO_SLUG + "/releases";
 
     private static final String PREF_NAME = "pixelboard_updates";
     private static final String PREF_KEY_AUTO_CHECK = "auto_check_updates";
@@ -218,6 +221,17 @@ public final class PixelBoardUpdateManager {
                 connection.setReadTimeout(15000);
 
                 int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                    // Fork'ta henüz yayımlanmış sürüm yok: hata değil, güncel say.
+                    Log.i(TAG, "No releases published for " + UPDATE_REPO_SLUG);
+                    currentStatus = Status.UP_TO_DATE;
+                    postToMain(() -> {
+                        if (callback != null) {
+                            callback.onUpdateResult(Status.UP_TO_DATE, null, null);
+                        }
+                    });
+                    return;
+                }
                 if (responseCode != HttpURLConnection.HTTP_OK) {
                     throw new IllegalStateException("GitHub API returned HTTP " + responseCode);
                 }

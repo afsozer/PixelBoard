@@ -77,7 +77,12 @@ android {
         buildConfigField(
             "String",
             "PATCH_REPOSITORY_URL",
-            "\"https://github.com/Akshayykadam/PixelBoard\""
+            "\"https://github.com/afsozer/PixelBoard\""
+        )
+        buildConfigField(
+            "String",
+            "UPDATE_REPO_SLUG",
+            "\"afsozer/PixelBoard\""
         )
         buildConfigField("String", "PATCH_VERSION", "\"${project.version}\"")
     }
