@@ -90,6 +90,10 @@ android {
     testOptions {
         unitTests.all {
             it.maxHeapSize = "2g"
+            // Ayarlar metinleri cihaz yereline göre çözülüyor; testler İngilizce metin
+            // doğruladığı için worker JVM'ini sabit locale ile başlat.
+            it.systemProperty("user.language", "en")
+            it.systemProperty("user.country", "US")
         }
     }
 

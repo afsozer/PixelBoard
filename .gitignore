@@ -19,6 +19,10 @@ output/patching-result*.json
 input/splits*/
 !input/.gitkeep
 
+# Yerel Gradle/Kotlin ayarları ve SDK yolu
+pixelboard-patches/local.properties
+pixelboard-patches/.kotlin/
+
 # Log files
 *.log
 
