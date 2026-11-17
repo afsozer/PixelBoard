@@ -107,7 +107,8 @@ jobs:
 
       - name: Note dry run
         if: steps.merge.outputs.clean == 'true' && env.DRY_RUN == 'true'
-        run: echo "Dry run: merge and tests passed, nothing pushed." >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "Dry run: merge and tests passed, nothing pushed." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Report conflict
         if: steps.merge.outputs.clean == 'false'
