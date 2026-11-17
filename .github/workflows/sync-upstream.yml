@@ -4,10 +4,24 @@ on:
   schedule:
     - cron: "0 4 * * *"
   workflow_dispatch:
+    inputs:
+      source_repo:
+        description: Repository to merge from
+        required: false
+        default: Akshayykadam/PixelBoard
+      source_ref:
+        description: Branch to merge from
+        required: false
+        default: main
+      dry_run:
+        description: Merge and test without pushing to main
+        type: boolean
+        default: false
 
 permissions:
   contents: write
   issues: write
+  packages: read
 
 concurrency:
   group: sync-upstream
@@ -18,8 +32,9 @@ jobs:
     if: github.repository == 'afsozer/PixelBoard'
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      MORPHE_PAT: ${{ secrets.MORPHE_PAT }}
+      SOURCE_REPO: ${{ inputs.source_repo || 'Akshayykadam/PixelBoard' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'main' }}
+      DRY_RUN: ${{ inputs.dry_run || 'false' }}
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
@@ -31,41 +46,32 @@ jobs:
         run: |
           git config user.name "upstream-sync[bot]"
           git config user.email "upstream-sync@users.noreply.github.com"
-          git remote add upstream https://github.com/Akshayykadam/PixelBoard.git
+          git remote add source "https://github.com/${SOURCE_REPO}.git"
 
-      - name: Fetch upstream
-        run: git fetch --no-tags upstream main
+      - name: Fetch source
+        run: git fetch --no-tags source "$SOURCE_REF"
 
       - name: Check for new commits
         id: check
         run: |
-          if git merge-base --is-ancestor upstream/main HEAD; then
+          if git merge-base --is-ancestor FETCH_HEAD HEAD; then
             echo "new=false" >> "$GITHUB_OUTPUT"
-            echo "Upstream has no commits that are missing here." >> "$GITHUB_STEP_SUMMARY"
+            echo "${SOURCE_REPO}@${SOURCE_REF} has no commits that are missing here." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "new=true" >> "$GITHUB_OUTPUT"
             {
-              echo "Upstream commits to bring in:"
+              echo "Commits to bring in from ${SOURCE_REPO}@${SOURCE_REF}:"
               echo
-              git log --oneline HEAD..upstream/main
+              git log --oneline HEAD..FETCH_HEAD
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Detect packages token
-        id: token
-        run: |
-          if [ -n "$MORPHE_PAT" ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Merge upstream
+      - name: Merge source
         id: merge
         if: steps.check.outputs.new == 'true'
         run: |
           git switch -c upstream-sync
-          if git merge --no-edit upstream/main; then
+          if git merge --no-edit FETCH_HEAD; then
             echo "clean=true" >> "$GITHUB_OUTPUT"
           else
             git diff --name-only --diff-filter=U | sort > "$RUNNER_TEMP/conflicts.txt"
@@ -73,47 +79,46 @@ jobs:
           fi
 
       - name: Set up JDK 17
-        if: steps.merge.outputs.clean == 'true' && steps.token.outputs.present == 'true'
+        if: steps.merge.outputs.clean == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Set up Android SDK
-        if: steps.merge.outputs.clean == 'true' && steps.token.outputs.present == 'true'
+        if: steps.merge.outputs.clean == 'true'
         uses: android-actions/setup-android@v4
 
       - name: Run tests
-        id: tests
-        if: steps.merge.outputs.clean == 'true' && steps.token.outputs.present == 'true'
+        if: steps.merge.outputs.clean == 'true'
         working-directory: pixelboard-patches
         env:
           GITHUB_ACTOR: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.MORPHE_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew test --no-daemon
 
-      - name: Note skipped validation
-        if: steps.merge.outputs.clean == 'true' && steps.token.outputs.present == 'false'
-        run: echo "MORPHE_PAT secret is missing, so the merge was not built or tested." >> "$GITHUB_STEP_SUMMARY"
-
       - name: Push merge to main
-        if: steps.merge.outputs.clean == 'true'
+        if: steps.merge.outputs.clean == 'true' && env.DRY_RUN != 'true'
         run: |
           git switch main
           git merge --ff-only upstream-sync
           git push origin main
-          echo "Merged upstream into main." >> "$GITHUB_STEP_SUMMARY"
+          echo "Merged ${SOURCE_REPO}@${SOURCE_REF} into main." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Note dry run
+        if: steps.merge.outputs.clean == 'true' && env.DRY_RUN == 'true'
+        run: echo "Dry run: merge and tests passed, nothing pushed." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Report conflict
         if: steps.merge.outputs.clean == 'false'
         run: |
           {
-            echo "Upstream sync could not merge cleanly. Resolve locally:"
+            echo "Merging \`${SOURCE_REPO}@${SOURCE_REF}\` into main conflicts. Resolve locally:"
             echo
             echo '```'
-            echo "git fetch upstream"
+            echo "git fetch source"
             echo "git switch -c upstream-sync main"
-            echo "git merge upstream/main   # resolve the files below"
+            echo "git merge source/${SOURCE_REF}   # resolve the files below"
             echo '```'
             echo
             echo "Conflicting files:"
