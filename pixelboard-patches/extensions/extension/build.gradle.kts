@@ -64,6 +64,19 @@ val generatedSettingsTextJavaDir = layout.buildDirectory.dir(
     "generated/source/settingsText/java"
 )
 
+// Paket adı tek yerde, yama tarafındaki Constants.kt'de duruyor; uzantı kodu
+// aynı değeri BuildConfig üzerinden okur.
+val patchedPackageName: String = run {
+    val constantsFile = rootProject.file(
+        "patches/src/main/kotlin/com/akshaykadam/pixelboard/patches/shared/Constants.kt"
+    )
+    val match = Regex("""const val GBOARD_PATCHED_PACKAGE_NAME = "([^"]+)"""")
+        .find(constantsFile.readText())
+    requireNotNull(match) {
+        "GBOARD_PATCHED_PACKAGE_NAME not found in ${constantsFile.path}"
+    }.groupValues[1]
+}
+
 android {
     namespace = "com.akshaykadam.pixelboard.extension"
 
@@ -84,6 +97,7 @@ android {
             "UPDATE_REPO_SLUG",
             "\"afsozer/PixelBoard\""
         )
+        buildConfigField("String", "PATCHED_PACKAGE_NAME", "\"$patchedPackageName\"")
         buildConfigField("String", "PATCH_VERSION", "\"${project.version}\"")
     }
 

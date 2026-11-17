@@ -3,6 +3,7 @@ package com.akshaykadam.pixelboard.extension.writingtools;
 import android.content.Context;
 import android.util.Log;
 
+import com.akshaykadam.pixelboard.extension.BuildConfig;
 import com.akshaykadam.pixelboard.extension.settings.GboardEmojiSettings;
 import com.akshaykadam.pixelboard.extension.settings.GboardGoogleSansSettings;
 import com.akshaykadam.pixelboard.extension.settings.GboardRoundedKeysSettings;
@@ -394,7 +395,7 @@ public final class GboardAiWritingToolsRuntime {
     static final String ALL_LANGUAGES_ALLOWLIST_VALUE = "*";
     static final String MODELESS_SMART_EDIT_REGEX_VERSION = "v3";
     static final String RENAMED_GBOARD_PACKAGE =
-            "com.akshaykadam.pixelboard";
+            BuildConfig.PATCHED_PACKAGE_NAME;
     static final String PROOFREAD_MODEL_CONFIG =
             "202408051448_prod_sd_config";
     static final String TEXT_STYLIZATION_MODEL_CONFIG =

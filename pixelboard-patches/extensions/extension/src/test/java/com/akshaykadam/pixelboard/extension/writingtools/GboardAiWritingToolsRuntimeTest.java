@@ -1,5 +1,6 @@
 package com.akshaykadam.pixelboard.extension.writingtools;
 
+import com.akshaykadam.pixelboard.extension.BuildConfig;
 import com.akshaykadam.pixelboard.extension.settings.GboardGoogleSansSettings;
 import com.akshaykadam.pixelboard.extension.settings.GboardUndoSettings;
 
@@ -137,7 +138,7 @@ public final class GboardAiWritingToolsRuntimeTest {
                         proofread,
                         settings,
                         official(true, true),
-                        "com.akshaykadam.pixelboard"));
+                        BuildConfig.PATCHED_PACKAGE_NAME));
         String stylization = "composer_stylization_base";
         Assert.assertEquals("202504090000_writing_tools_config",
                 GboardAiWritingToolsRuntime.computeOverrideValue(
@@ -146,7 +147,7 @@ public final class GboardAiWritingToolsRuntimeTest {
                         stylization,
                         settings,
                         official(true, true),
-                        "com.akshaykadam.pixelboard"));
+                        BuildConfig.PATCHED_PACKAGE_NAME));
     }
 
     @Test
@@ -169,7 +170,7 @@ public final class GboardAiWritingToolsRuntimeTest {
                 wrongType,
                 serverSettings(false),
                 official(true, true),
-                "com.akshaykadam.pixelboard"));
+                BuildConfig.PATCHED_PACKAGE_NAME));
     }
 
     @Test

@@ -35,7 +35,7 @@ class GboardPackageRenamePatchContractTest {
         assertEquals(1, patch.dependencies.size)
         assertSame(gboardPackageRenameResourcePatch, patch.dependencies.single())
         assertEquals("com.google.android.inputmethod.latin", GBOARD_PACKAGE_NAME)
-        assertEquals("com.akshaykadam.pixelboard", GBOARD_PATCHED_PACKAGE_NAME)
+        assertEquals("com.afsozer.pixelboard", GBOARD_PATCHED_PACKAGE_NAME)
 
         val compatibilities = checkNotNull(patch.compatibility)
         assertEquals(1, compatibilities.size)
@@ -135,7 +135,7 @@ class GboardPackageRenamePatchContractTest {
         const val TARGET_VERSION_1853_RELEASE = "18.5.3.993608717-release-arm64-v8a"
         const val TARGET_VERSION_1863_RELEASE = "18.6.3.1002251336-release-arm64-v8a"
         const val PACKAGE_RENAME_DESCRIPTION =
-            "Rename the package to com.akshaykadam.pixelboard " +
+            "Rename the package to $GBOARD_PATCHED_PACKAGE_NAME " +
                 "and allow a custom app name so it can be installed alongside " +
                 "the official Gboard."
         const val APP_DISPLAY_NAME_OPTION_KEY = "app_display_name"

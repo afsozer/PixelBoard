@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import com.akshaykadam.pixelboard.extension.BuildConfig;
 import com.akshaykadam.pixelboard.extension.R;
 import com.akshaykadam.pixelboard.extension.settings.GboardPatchesSettingsContract;
 import com.akshaykadam.pixelboard.extension.settings.GboardPatchesSettings;
@@ -412,7 +413,7 @@ public final class GboardAdvancedVoiceSettingsFeature
         List<String> packageNames = new ArrayList<String>();
         addPackageName(packageNames, context == null ? null : context.getPackageName());
         addPackageName(packageNames, "com.google.android.inputmethod.latin");
-        addPackageName(packageNames, "com.akshaykadam.pixelboard");
+        addPackageName(packageNames, BuildConfig.PATCHED_PACKAGE_NAME);
         return packageNames;
     }
 

@@ -652,7 +652,7 @@ private data class SettingsIdentity(
     val targetPackages: List<Attr>,
 )
 
-private const val DOUBLE_PREFIX =
-    "com.akshaykadam.com.akshaykadam.pixelboard"
+private val DOUBLE_PREFIX =
+    GBOARD_PATCHED_PACKAGE_NAME.substringBeforeLast('.') + "." + GBOARD_PATCHED_PACKAGE_NAME
 
 private const val REQUIRED_SPLITS_METADATA = "com.android.vending.splits.required"

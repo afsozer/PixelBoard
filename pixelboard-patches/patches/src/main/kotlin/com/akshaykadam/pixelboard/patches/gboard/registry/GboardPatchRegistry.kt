@@ -29,6 +29,7 @@ import com.akshaykadam.pixelboard.patches.gboard.features.writingtools.gboardAiW
 import com.akshaykadam.pixelboard.patches.gboard.shared.gboardPatchesSettingsPatch
 import com.akshaykadam.pixelboard.patches.gboard.shared.generated.GboardTargetAdmission
 import com.akshaykadam.pixelboard.patches.shared.Constants.COMPATIBILITY_GBOARD
+import com.akshaykadam.pixelboard.patches.shared.Constants.GBOARD_PATCHED_PACKAGE_NAME
 
 private fun gboardPublicResourcePatch(
     featureId: String,
@@ -99,7 +100,7 @@ val gboardSignatureBypassPatch = gboardPublicResourcePatch(
 val gboardPackageRenamePatch = gboardPublicResourcePatch(
     featureId = "package_rename",
     name = "Package Rename",
-    description = "Rename the package to com.akshaykadam.pixelboard and allow " +
+    description = "Rename the package to $GBOARD_PATCHED_PACKAGE_NAME and allow " +
         "a custom app name so it can be installed alongside the official Gboard.",
     default = true
 ) {
